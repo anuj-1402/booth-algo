@@ -1,0 +1,145 @@
+import java.util.Scanner;
+
+public class Stack {
+    private int maxSize;
+    private int top;
+    private int[] stackArray;
+
+    // Constructor to initialize the stack
+    public Stack(int size) {
+        maxSize = size;
+        stackArray = new int[maxSize];
+        top = -1; // Stack is initially empty
+    }
+
+    // Push operation: adds an element to the top of the stack
+    public void push(int value) {
+        if (top == maxSize - 1) {
+            System.out.println("Stack Overflow! Can't add more elements.");
+        } else {
+            stackArray[++top] = value;
+            System.out.println("Element pushed: " + value);
+        }
+    }
+
+    // Pop operation: removes and returns the top element
+    public int pop() {
+        if (top == -1) {
+            System.out.println("Stack Underflow! No elements to pop.");
+            return -1;
+        } else {
+            return stackArray[top--];
+        }
+    }
+
+    // Peek operation: returns the top element without removing it
+    public int peek() {
+        if (top == -1) {
+            System.out.println("Stack is empty.");
+            return -1;
+        } else {
+            return stackArray[top];
+        }
+    }
+
+    // Delete operation: removes a specific element
+    public void delete(int value) {
+        if (top == -1) {
+            System.out.println("Stack is empty! Nothing to delete.");
+            return;
+        }
+
+        int tempStack[] = new int[maxSize]; // Temporary stack to hold elements
+        int tempTop = -1;
+        boolean found = false;
+
+        // Pop elements until the value is found
+        while (top != -1) {
+            int element = pop();
+            if (element == value) {
+                System.out.println("Deleted element: " + value);
+                found = true;
+                break; // Element found, stop here
+            } else {
+                tempStack[++tempTop] = element; // Store elements in temp stack
+            }
+        }
+
+        // Push back the remaining elements to the original stack
+        while (tempTop != -1) {
+            push(tempStack[tempTop--]);
+        }
+
+        if (!found) {
+            System.out.println("Element not found in stack.");
+        }
+    }
+
+    // Display the stack
+    public void display() {
+        if (top == -1) {
+            System.out.println("Stack is empty.");
+        } else {
+            System.out.println("Stack elements are:");
+            for (int i = top; i >= 0; i--) {
+                System.out.println(stackArray[i]);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter stack size: ");
+        int size = scanner.nextInt();
+        Stack stack = new Stack(size);
+
+        int choice, value;
+
+        do {
+            System.out.println("\nMenu:");
+            System.out.println("1. Push");
+            System.out.println("2. Pop");
+            System.out.println("3. Peek");
+            System.out.println("4. Delete");
+            System.out.println("5. Display");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter value to push: ");
+                    value = scanner.nextInt();
+                    stack.push(value);
+                    break;
+                case 2:
+                    int poppedValue = stack.pop();
+                    if (poppedValue != -1) {
+                        System.out.println("Popped element: " + poppedValue);
+                    }
+                    break;
+                case 3:
+                    int topElement = stack.peek();
+                    if (topElement != -1) {
+                        System.out.println("Top element: " + topElement);
+                    }
+                    break;
+                case 4:
+                    System.out.print("Enter value to delete: ");
+                    value = scanner.nextInt();
+                    stack.delete(value);
+                    break;
+                case 5:
+                    stack.display();
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice! Please choose again.");
+            }
+        } while (choice != 6);
+
+        scanner.close();
+    }
+}

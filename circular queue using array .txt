@@ -1,0 +1,174 @@
+import java.util.Scanner;
+
+public class CircularQueue {
+    private int[] queueArray;
+    private int front;
+    private int rear;
+    private int maxSize;
+    private int currentSize;
+
+    // Constructor to initialize the circular queue
+    public CircularQueue(int size) {
+        maxSize = size;
+        queueArray = new int[maxSize];
+        front = -1;
+        rear = -1;
+        currentSize = 0;
+    }
+
+    // Enqueue operation: adds an element to the rear of the queue
+    public void enqueue(int value) {
+        if (isFull()) {
+            System.out.println("Queue is full! Can't enqueue more elements.");
+        } else {
+            if (front == -1) front = 0; // If queue is initially empty
+            rear = (rear + 1) % maxSize;
+            queueArray[rear] = value;
+            currentSize++;
+            System.out.println("Enqueued: " + value);
+        }
+    }
+
+    // Dequeue operation: removes and returns the front element
+    public int dequeue() {
+        if (isEmpty()) {
+            System.out.println("Queue is empty! Can't dequeue elements.");
+            return -1;
+        } else {
+            int value = queueArray[front];
+            if (front == rear) { // Reset when last element is dequeued
+                front = -1;
+                rear = -1;
+            } else {
+                front = (front + 1) % maxSize;
+            }
+            currentSize--;
+            return value;
+        }
+    }
+
+    // Peek operation: returns the front element without removing it
+    public int peek() {
+        if (isEmpty()) {
+            System.out.println("Queue is empty.");
+            return -1;
+        } else {
+            return queueArray[front];
+        }
+    }
+
+    // Delete operation: removes a specific element from the queue
+    public void delete(int value) {
+        if (isEmpty()) {
+            System.out.println("Queue is empty! Nothing to delete.");
+            return;
+        }
+
+        int deleteCount = 0;
+        boolean found = false;
+        int currentIndex;
+
+        for (int i = 0; i < currentSize; i++) {
+            currentIndex = (front + i) % maxSize;
+
+            if (queueArray[currentIndex] == value) {
+                found = true;
+                deleteCount++;
+                System.out.println("Deleted element: " + value);
+            } else {
+                queueArray[(front + i - deleteCount) % maxSize] = queueArray[currentIndex];
+            }
+        }
+
+        if (!found) {
+            System.out.println("Element not found in queue.");
+        } else {
+            currentSize -= deleteCount;
+            rear = (front + currentSize - 1 + maxSize) % maxSize; // Adjust rear index after deletion
+        }
+    }
+
+    // Check if the queue is empty
+    public boolean isEmpty() {
+        return currentSize == 0;
+    }
+
+    // Check if the queue is full
+    public boolean isFull() {
+        return currentSize == maxSize;
+    }
+
+    // Display the queue with index positions to show the circular nature
+    public void display() {
+        if (isEmpty()) {
+            System.out.println("Queue is empty.");
+        } else {
+            System.out.println("Queue (with index positions):");
+            for (int i = 0; i < maxSize; i++) {
+                if (i >= front && i <= rear) {
+                    System.out.print("[" + i + "] " + queueArray[i] + " ");
+                } else {
+                    System.out.print("[" + i + "] __ "); // Empty spots
+                }
+            }
+            System.out.println("\nFront at index: " + front);
+            System.out.println("Rear at index: " + rear);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter queue size: ");
+        int size = scanner.nextInt();
+        CircularQueue queue = new CircularQueue(size);
+
+        int choice, value;
+
+        do {
+            System.out.println("\nMenu:");
+            System.out.println("1. Enqueue");
+            System.out.println("2. Dequeue");
+            System.out.println("3. Peek");
+            System.out.println("4. Delete");
+            System.out.println("5. Display");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter value to enqueue: ");
+                    value = scanner.nextInt();
+                    queue.enqueue(value);
+                    break;
+                case 2:
+                    int dequeuedValue = queue.dequeue();
+                    if (dequeuedValue != -1) {
+                        System.out.println("Dequeued element: " + dequeuedValue);
+                    }
+                    break;
+                case 3:
+                    int frontElement = queue.peek();
+                    if (frontElement != -1) {
+                        System.out.println("Front element: " + frontElement);
+                    }
+                    break;
+                case 4:
+                    System.out.print("Enter value to delete: ");
+                    value = scanner.nextInt();
+                    queue.delete(value);
+                    break;
+                case 5:
+                    queue.display();
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
+        } while (choice != 6);
+
+        scanner.close();
+    }
+}

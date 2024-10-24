@@ -1,0 +1,215 @@
+import java.util.Scanner;
+
+// Node class for the Binary Search Tree
+class Node {
+    int data; // Data part of the node
+    Node left; // Reference to the left child
+    Node right; // Reference to the right child
+
+    public Node(int data) {
+        this.data = data;
+        this.left = null; // Left child is initially null
+        this.right = null; // Right child is initially null
+    }
+}
+
+// Binary Search Tree class
+public class BinarySearchTree {
+    private Node root; // Root of the BST
+
+    // Constructor to initialize the root
+    public BinarySearchTree() {
+        root = null;
+    }
+
+    // Insert a new node with the given data
+    public void insert(int data) {
+        root = insertRec(root, data);
+        System.out.println("Inserted: " + data);
+    }
+
+    // Recursive method to insert a new node
+    private Node insertRec(Node root, int data) {
+        // If the tree is empty, create a new node
+        if (root == null) {
+            return new Node(data);
+        }
+
+        // Otherwise, recur down the tree
+        if (data < root.data) {
+            root.left = insertRec(root.left, data); // Insert in the left subtree
+        } else if (data > root.data) {
+            root.right = insertRec(root.right, data); // Insert in the right subtree
+        }
+        // Return the unchanged node pointer
+        return root;
+    }
+
+    // Delete a node with the given data
+    public void delete(int data) {
+        root = deleteRec(root, data);
+        System.out.println("Deleted: " + data);
+    }
+
+    // Recursive method to delete a node
+    private Node deleteRec(Node root, int data) {
+        // Base case: If the tree is empty
+        if (root == null) {
+            System.out.println("Element " + data + " not found in the tree.");
+            return root;
+        }
+
+        // Recur down the tree to find the node to delete
+        if (data < root.data) {
+            root.left = deleteRec(root.left, data); // Move to the left subtree
+        } else if (data > root.data) {
+            root.right = deleteRec(root.right, data); // Move to the right subtree
+        } else {
+            // Node with only one child or no child
+            if (root.left == null) {
+                return root.right;
+            } else if (root.right == null) {
+                return root.left;
+            }
+
+            // Node with two children: Get the inorder successor (smallest in the right subtree)
+            root.data = minValue(root.right);
+
+            // Delete the inorder successor
+            root.right = deleteRec(root.right, root.data);
+        }
+        return root;
+    }
+
+    // Helper method to find the minimum value in the tree
+    private int minValue(Node root) {
+        int minValue = root.data;
+        while (root.left != null) {
+            minValue = root.left.data;
+            root = root.left;
+        }
+        return minValue;
+    }
+
+    // Search for a node with the given data
+    public boolean search(int data) {
+        return searchRec(root, data);
+    }
+
+    // Recursive method to search for a node
+    private boolean searchRec(Node root, int data) {
+        // Base case: root is null or data is present at root
+        if (root == null) {
+            return false; // Data not found
+        }
+        if (root.data == data) {
+            return true; // Data found
+        }
+
+        // Recur down the tree
+        return data < root.data ? searchRec(root.left, data) : searchRec(root.right, data);
+    }
+
+    // In-order traversal (Left, Root, Right)
+    public void inorder() {
+        System.out.print("In-order Traversal: ");
+        inorderRec(root);
+        System.out.println();
+    }
+
+    private void inorderRec(Node root) {
+        if (root != null) {
+            inorderRec(root.left); // Traverse left subtree
+            System.out.print(root.data + " "); // Visit node
+            inorderRec(root.right); // Traverse right subtree
+        }
+    }
+
+    // Pre-order traversal (Root, Left, Right)
+    public void preorder() {
+        System.out.print("Pre-order Traversal: ");
+        preorderRec(root);
+        System.out.println();
+    }
+
+    private void preorderRec(Node root) {
+        if (root != null) {
+            System.out.print(root.data + " "); // Visit node
+            preorderRec(root.left); // Traverse left subtree
+            preorderRec(root.right); // Traverse right subtree
+        }
+    }
+
+    // Post-order traversal (Left, Right, Root)
+    public void postorder() {
+        System.out.print("Post-order Traversal: ");
+        postorderRec(root);
+        System.out.println();
+    }
+
+    private void postorderRec(Node root) {
+        if (root != null) {
+            postorderRec(root.left); // Traverse left subtree
+            postorderRec(root.right); // Traverse right subtree
+            System.out.print(root.data + " "); // Visit node
+        }
+    }
+
+    // Main method for menu-driven interface
+    public static void main(String[] args) {
+        BinarySearchTree bst = new BinarySearchTree();
+        Scanner scanner = new Scanner(System.in);
+        int choice, data;
+
+        do {
+            System.out.println("\nMenu:");
+            System.out.println("1. Insert");
+            System.out.println("2. Delete");
+            System.out.println("3. Search");
+            System.out.println("4. In-order Traversal");
+            System.out.println("5. Pre-order Traversal");
+            System.out.println("6. Post-order Traversal");
+            System.out.println("7. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter data to insert: ");
+                    data = scanner.nextInt();
+                    bst.insert(data);
+                    break;
+                case 2:
+                    System.out.print("Enter data to delete: ");
+                    data = scanner.nextInt();
+                    bst.delete(data);
+                    break;
+                case 3:
+                    System.out.print("Enter data to search for: ");
+                    data = scanner.nextInt();
+                    if (bst.search(data)) {
+                        System.out.println(data + " is found in the tree.");
+                    } else {
+                        System.out.println(data + " is not found in the tree.");
+                    }
+                    break;
+                case 4:
+                    bst.inorder();
+                    break;
+                case 5:
+                    bst.preorder();
+                    break;
+                case 6:
+                    bst.postorder();
+                    break;
+                case 7:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 7);
+
+        scanner.close(); // Close the scanner to prevent resource leaks
+    }
+}

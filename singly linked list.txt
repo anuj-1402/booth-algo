@@ -1,0 +1,189 @@
+import java.util.Scanner;
+
+class Node {
+    int data; // Data part of the node
+    Node next; // Reference to the next node
+
+    public Node(int data) {
+        this.data = data;
+        this.next = null; // Next node is initially null
+    }
+}
+
+public class SinglyLinkedList {
+    private Node head; // Head of the list
+
+    // Constructor to initialize the head
+    public SinglyLinkedList() {
+        head = null;
+    }
+
+    // Insert a new node at the end of the list
+    public void insertAtEnd(int data) {
+        Node newNode = new Node(data);
+        if (head == null) {
+            head = newNode; // If the list is empty, set head to new node
+        } else {
+            Node current = head;
+            while (current.next != null) {
+                current = current.next; // Traverse to the end of the list
+            }
+            current.next = newNode; // Link the new node at the end
+        }
+        System.out.println("Inserted at end: " + data);
+    }
+
+    // Insert a new node at the beginning of the list
+    public void insertAtBeginning(int data) {
+        Node newNode = new Node(data);
+        newNode.next = head; // Link new node to the current head
+        head = newNode; // Update head to new node
+        System.out.println("Inserted at beginning: " + data);
+    }
+
+    // Insert a new node at a specific position
+    public void insertAtPosition(int data, int position) {
+        Node newNode = new Node(data);
+        if (position == 0) {
+            insertAtBeginning(data); // Insert at the beginning
+            return;
+        }
+
+        Node current = head;
+        for (int i = 0; i < position - 1; i++) {
+            if (current == null) {
+                System.out.println("Position out of bounds. Inserting at the end instead.");
+                insertAtEnd(data);
+                return;
+            }
+            current = current.next;
+        }
+        newNode.next = current.next; // Link new node to the next node
+        current.next = newNode; // Link previous node to new node
+        System.out.println("Inserted at position " + position + ": " + data);
+    }
+
+    // Delete a node by value
+    public void delete(int data) {
+        if (head == null) {
+            System.out.println("List is empty. Nothing to delete.");
+            return;
+        }
+
+        // Handle the case where the node to delete is the head
+        if (head.data == data) {
+            head = head.next; // Move head to the next node
+            System.out.println("Deleted: " + data);
+            return;
+        }
+
+        Node current = head;
+        Node previous = null;
+
+        // Traverse the list to find the node to delete
+        while (current != null && current.data != data) {
+            previous = current;
+            current = current.next;
+        }
+
+        // If the node was found, unlink it from the list
+        if (current != null) {
+            previous.next = current.next;
+            System.out.println("Deleted: " + data);
+        } else {
+            System.out.println("Element " + data + " not found in the list.");
+        }
+    }
+
+    // Search for a node by value
+    public boolean search(int data) {
+        Node current = head;
+        while (current != null) {
+            if (current.data == data) {
+                return true; // Data found
+            }
+            current = current.next;
+        }
+        return false; // Data not found
+    }
+
+    // Display the linked list
+    public void display() {
+        if (head == null) {
+            System.out.println("List is empty.");
+            return;
+        }
+
+        Node current = head;
+        System.out.print("Linked List: ");
+        while (current != null) {
+            System.out.print(current.data + " -> "); // Print the current node's data
+            current = current.next; // Move to the next node
+        }
+        System.out.println("null"); // Indicate the end of the list
+    }
+
+    // Main method for menu-driven interface
+    public static void main(String[] args) {
+        SinglyLinkedList list = new SinglyLinkedList();
+        Scanner scanner = new Scanner(System.in);
+        int choice, data, position;
+
+        do {
+            System.out.println("\nMenu:");
+            System.out.println("1. Insert at Beginning");
+            System.out.println("2. Insert at End");
+            System.out.println("3. Insert at Specific Position");
+            System.out.println("4. Delete a Node");
+            System.out.println("5. Search for a Node");
+            System.out.println("6. Display the List");
+            System.out.println("7. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter data to insert at beginning: ");
+                    data = scanner.nextInt();
+                    list.insertAtBeginning(data);
+                    break;
+                case 2:
+                    System.out.print("Enter data to insert at end: ");
+                    data = scanner.nextInt();
+                    list.insertAtEnd(data);
+                    break;
+                case 3:
+                    System.out.print("Enter data to insert: ");
+                    data = scanner.nextInt();
+                    System.out.print("Enter position to insert at: ");
+                    position = scanner.nextInt();
+                    list.insertAtPosition(data, position);
+                    break;
+                case 4:
+                    System.out.print("Enter data to delete: ");
+                    data = scanner.nextInt();
+                    list.delete(data);
+                    break;
+                case 5:
+                    System.out.print("Enter data to search for: ");
+                    data = scanner.nextInt();
+                    if (list.search(data)) {
+                        System.out.println(data + " is found in the list.");
+                    } else {
+                        System.out.println(data + " is not found in the list.");
+                    }
+                    break;
+                case 6:
+                    list.display();
+                    break;
+                case 7:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 7);
+
+        scanner.close(); // Close the scanner to prevent resource leaks
+    }
+}

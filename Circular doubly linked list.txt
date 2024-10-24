@@ -1,0 +1,153 @@
+import java.util.Scanner; // Import the Scanner class
+
+class Node {
+    int data;
+    Node next;
+    Node prev;
+
+    // Node constructor
+    public Node(int data) {
+        this.data = data;
+        this.next = null;
+        this.prev = null;
+    }
+}
+
+public class CircularDoublyLinkedList {
+    private Node head;
+
+    // Constructor to initialize the list
+    public CircularDoublyLinkedList() {
+        this.head = null;
+    }
+
+    // Method to check if the list is empty
+    public boolean isEmpty() {
+        return head == null;
+    }
+
+    // Method to insert a node at the beginning
+    public void insertAtBeginning(int data) {
+        Node newNode = new Node(data);
+        if (isEmpty()) {
+            head = newNode;
+            head.next = head; // Point to itself
+            head.prev = head; // Point to itself
+        } else {
+            Node tail = head.prev; // Get the last node
+            newNode.next = head; // Point new node to head
+            newNode.prev = tail; // Point new node to tail
+            head.prev = newNode; // Old head's previous to new node
+            tail.next = newNode; // Tail's next to new node
+            head = newNode; // Update head to new node
+        }
+        System.out.println("Inserted " + data + " at the beginning.");
+    }
+
+    // Method to insert a node at the end
+    public void insertAtEnd(int data) {
+        Node newNode = new Node(data);
+        if (isEmpty()) {
+            head = newNode;
+            head.next = head; // Point to itself
+            head.prev = head; // Point to itself
+        } else {
+            Node tail = head.prev; // Get the last node
+            newNode.next = head; // Point new node to head
+            newNode.prev = tail; // Point new node to tail
+            tail.next = newNode; // Old tail's next to new node
+            head.prev = newNode; // Head's previous to new node
+        }
+        System.out.println("Inserted " + data + " at the end.");
+    }
+
+    // Method to delete a node
+    public void deleteNode(int data) {
+        if (isEmpty()) {
+            System.out.println("List is empty. Cannot delete " + data);
+            return;
+        }
+
+        Node current = head;
+        do {
+            if (current.data == data) {
+                if (current == head && current.next == head) {
+                    head = null; // If only one node was present
+                } else {
+                    current.prev.next = current.next; // Bypass current
+                    current.next.prev = current.prev; // Bypass current
+                    if (current == head) {
+                        head = current.next; // Move head if necessary
+                    }
+                }
+                System.out.println("Deleted " + data + " from the list.");
+                return;
+            }
+            current = current.next;
+        } while (current != head);
+
+        System.out.println(data + " not found in the list.");
+    }
+
+    // Method to display the list
+    public void display() {
+        if (isEmpty()) {
+            System.out.println("The list is empty.");
+            return;
+        }
+        
+        Node current = head;
+        System.out.print("Circular Doubly Linked List: ");
+        do {
+            System.out.print(current.data + " <-> ");
+            current = current.next;
+        } while (current != head);
+        System.out.println("(back to head: " + head.data + ")");
+    }
+
+    // Main method for menu-driven interface
+    public static void main(String[] args) {
+        CircularDoublyLinkedList list = new CircularDoublyLinkedList();
+        Scanner scanner = new Scanner(System.in); // Create a Scanner object
+        int choice, data;
+
+        do {
+            System.out.println("\nCircular Doubly Linked List Menu:");
+            System.out.println("1. Insert at Beginning");
+            System.out.println("2. Insert at End");
+            System.out.println("3. Delete Node");
+            System.out.println("4. Display List");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter data to insert at beginning: ");
+                    data = scanner.nextInt();
+                    list.insertAtBeginning(data);
+                    break;
+                case 2:
+                    System.out.print("Enter data to insert at end: ");
+                    data = scanner.nextInt();
+                    list.insertAtEnd(data);
+                    break;
+                case 3:
+                    System.out.print("Enter data to delete: ");
+                    data = scanner.nextInt();
+                    list.deleteNode(data);
+                    break;
+                case 4:
+                    list.display();
+                    break;
+                case 5:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 5);
+
+        scanner.close(); // Close the scanner to prevent resource leaks
+    }
+}

@@ -1,0 +1,104 @@
+import java.util.*;
+
+public class Graph {
+    private int[][] adjacencyMatrix; // Adjacency matrix representation
+    private int numberOfVertices; // Number of vertices in the graph
+
+    // Constructor to initialize the graph
+    public Graph(int size) {
+        this.numberOfVertices = size;
+        this.adjacencyMatrix = new int[size][size]; // Initialize the adjacency matrix
+    }
+
+    // Method to add an edge to the graph
+    public void addEdge(int source, int destination) {
+        if (source >= 0 && source < numberOfVertices && destination >= 0 && destination < numberOfVertices) {
+            adjacencyMatrix[source][destination] = 1; // Add edge from source to destination
+            // If the graph is undirected, uncomment the following line:
+            // adjacencyMatrix[destination][source] = 1; // Add edge from destination to source
+            System.out.println("Edge added from " + source + " to " + destination);
+        } else {
+            System.out.println("Invalid edge! Source or destination vertex is out of bounds.");
+        }
+    }
+
+    // Method to perform BFS traversal from a given vertex
+    public void performBFS(int startVertex) {
+        boolean[] visited = new boolean[numberOfVertices]; // Array to track visited vertices
+        Queue<Integer> queue = new LinkedList<>(); // Queue for BFS
+        visited[startVertex] = true; // Mark the starting vertex as visited
+        queue.add(startVertex); // Enqueue the starting vertex
+
+        System.out.print("BFS Traversal starting from vertex " + startVertex + ": ");
+
+        while (!queue.isEmpty()) {
+            int vertex = queue.poll(); // Dequeue a vertex
+            System.out.print(vertex + " "); // Print the visited vertex
+
+            // Visit all the adjacent vertices of the dequeued vertex
+            for (int i = 0; i < numberOfVertices; i++) {
+                if (adjacencyMatrix[vertex][i] == 1 && !visited[i]) {
+                    visited[i] = true; // Mark as visited
+                    queue.add(i); // Enqueue the adjacent vertex
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    // Method to display the adjacency matrix
+    public void displayAdjacencyMatrix() {
+        System.out.println("Adjacency Matrix:");
+        for (int i = 0; i < numberOfVertices; i++) {
+            for (int j = 0; j < numberOfVertices; j++) {
+                System.out.print(adjacencyMatrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    // Main method for menu-driven interface
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of vertices in the graph: ");
+        int numberOfVertices = scanner.nextInt();
+        Graph graph = new Graph(numberOfVertices);
+        int choice;
+
+        do {
+            System.out.println("\nGraph Menu:");
+            System.out.println("1. Add Edge");
+            System.out.println("2. Perform BFS");
+            System.out.println("3. Display Adjacency Matrix");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter source vertex: ");
+                    int source = scanner.nextInt();
+                    System.out.print("Enter destination vertex: ");
+                    int destination = scanner.nextInt();
+                    graph.addEdge(source, destination);
+                    break;
+                case 2:
+                    System.out.print("Enter starting vertex for BFS: ");
+                    int startVertex = scanner.nextInt();
+                    graph.performBFS(startVertex);
+                    break;
+                case 3:
+                    graph.displayAdjacencyMatrix();
+                    break;
+                case 4:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 4);
+
+        scanner.close(); // Close the scanner to prevent resource leaks
+    }
+}

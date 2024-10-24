@@ -1,0 +1,372 @@
+import java.util.Scanner;
+
+// Node class for the AVL Tree
+class Node {
+    int data; // Data part of the node
+    Node left; // Reference to the left child
+    Node right; // Reference to the right child
+    int height; // Height of the node
+
+    public Node(int data) {
+        this.data = data;
+        this.height = 1; // New node is initially added at leaf
+    }
+}
+
+// AVL Tree class
+public class AVLTree {
+    private Node root; // Root of the AVL Tree
+    private int totalNodes; // Total nodes in the AVL Tree
+
+    // Get the height of a node
+    private int height(Node N) {
+        if (N == null) {
+            return 0;
+        }
+        return N.height;
+    }
+
+    // Get the balance factor of a node
+    private int getBalance(Node N) {
+        if (N == null) {
+            return 0;
+        }
+        return height(N.left) - height(N.right);
+    }
+
+    // Right rotate subtree rooted with y
+    private Node rightRotate(Node y) {
+        Node x = y.left;
+        Node T2 = x.right;
+
+        // Perform rotation
+        x.right = y;
+        y.left = T2;
+
+        // Update heights
+        y.height = Math.max(height(y.left), height(y.right)) + 1;
+        x.height = Math.max(height(x.left), height(x.right)) + 1;
+
+        // Return new root
+        return x;
+    }
+
+    // Left rotate subtree rooted with x
+    private Node leftRotate(Node x) {
+        Node y = x.right;
+        Node T2 = y.left;
+
+        // Perform rotation
+        y.left = x;
+        x.right = T2;
+
+        // Update heights
+        x.height = Math.max(height(x.left), height(x.right)) + 1;
+        y.height = Math.max(height(y.left), height(y.right)) + 1;
+
+        // Return new root
+        return y;
+    }
+
+    // Insert a node into the AVL Tree
+    public void insert(int data) {
+        root = insertRec(root, data);
+        totalNodes++;
+        System.out.println("Inserted: " + data);
+    }
+
+    // Recursive method to insert a new node
+    private Node insertRec(Node node, int data) {
+        // Perform the normal BST insertion
+        if (node == null) {
+            return new Node(data);
+        }
+        if (data < node.data) {
+            node.left = insertRec(node.left, data);
+        } else if (data > node.data) {
+            node.right = insertRec(node.right, data);
+        } else {
+            // Duplicate data is not allowed
+            return node;
+        }
+
+        // Update the height of this ancestor node
+        node.height = 1 + Math.max(height(node.left), height(node.right));
+
+        // Get the balance factor of this ancestor node to check whether
+        // this node became unbalanced
+        int balance = getBalance(node);
+
+        // If this node becomes unbalanced, then there are 4 cases
+
+        // Left Left Case
+        if (balance > 1 && data < node.left.data) {
+            return rightRotate(node);
+        }
+
+        // Right Right Case
+        if (balance < -1 && data > node.right.data) {
+            return leftRotate(node);
+        }
+
+        // Left Right Case
+        if (balance > 1 && data > node.left.data) {
+            node.left = leftRotate(node.left);
+            return rightRotate(node);
+        }
+
+        // Right Left Case
+        if (balance < -1 && data < node.right.data) {
+            node.right = rightRotate(node.right);
+            return leftRotate(node);
+        }
+
+        // Return the unchanged node pointer
+        return node;
+    }
+
+    // Delete a node from the AVL Tree
+    public void delete(int data) {
+        root = deleteRec(root, data);
+        System.out.println("Deleted: " + data);
+    }
+
+    // Recursive method to delete a node
+    private Node deleteRec(Node root, int data) {
+        // STEP 1: PERFORM STANDARD BST DELETE
+        if (root == null) {
+            System.out.println("Element " + data + " not found in the tree.");
+            return root;
+        }
+
+        if (data < root.data) {
+            root.left = deleteRec(root.left, data);
+        } else if (data > root.data) {
+            root.right = deleteRec(root.right, data);
+        } else {
+            // Node with one child or no child
+            if ((root.left == null) || (root.right == null)) {
+                Node temp = null;
+                if (temp == root.left) {
+                    temp = root.right;
+                } else {
+                    temp = root.left;
+                }
+
+                // No child case
+                if (temp == null) {
+                    totalNodes--; // Decrease total nodes
+                    return null;
+                } else {
+                    // One child case
+                    totalNodes--; // Decrease total nodes
+                    return temp;
+                }
+            } else {
+                // Node with two children: Get the inorder successor (smallest
+                // in the right subtree)
+                Node temp = minValueNode(root.right);
+
+                // Copy the inorder successor's data to this node
+                root.data = temp.data;
+
+                // Delete the inorder successor
+                root.right = deleteRec(root.right, temp.data);
+            }
+        }
+
+        // If the tree had only one node then return
+        if (root == null) {
+            return root;
+        }
+
+        // STEP 2: UPDATE HEIGHT OF THE CURRENT NODE
+        root.height = Math.max(height(root.left), height(root.right)) + 1;
+
+        // STEP 3: GET THE BALANCE FACTOR OF THIS NODE
+        int balance = getBalance(root);
+
+        // If this node becomes unbalanced, then there are 4 cases
+
+        // Left Left Case
+        if (balance > 1 && getBalance(root.left) >= 0) {
+            return rightRotate(root);
+        }
+
+        // Left Right Case
+        if (balance > 1 && getBalance(root.left) < 0) {
+            root.left = leftRotate(root.left);
+            return rightRotate(root);
+        }
+
+        // Right Right Case
+        if (balance < -1 && getBalance(root.right) <= 0) {
+            return leftRotate(root);
+        }
+
+        // Right Left Case
+        if (balance < -1 && getBalance(root.right) > 0) {
+            root.right = rightRotate(root.right);
+            return leftRotate(root);
+        }
+
+        return root;
+    }
+
+    // Helper method to find the minimum value node
+    private Node minValueNode(Node node) {
+        Node current = node;
+        while (current.left != null) {
+            current = current.left;
+        }
+        return current;
+    }
+
+    // Search for a node with the given data
+    public boolean search(int data) {
+        return searchRec(root, data);
+    }
+
+    // Recursive method to search for a node
+    private boolean searchRec(Node root, int data) {
+        if (root == null) {
+            return false; // Data not found
+        }
+        if (root.data == data) {
+            return true; // Data found
+        }
+        return data < root.data ? searchRec(root.left, data) : searchRec(root.right, data);
+    }
+
+    // Get the total number of nodes in the AVL Tree
+    public int getTotalNodes() {
+        return totalNodes;
+    }
+
+    // Check if the AVL Tree is empty
+    public boolean isEmpty() {
+        return root == null;
+    }
+
+    // Remove all nodes from the AVL Tree
+    public void removeAllNodes() {
+        root = null;
+        totalNodes = 0; // Reset total nodes
+        System.out.println("All nodes removed from the AVL Tree.");
+    }
+
+    // In-order traversal (Left, Root, Right)
+    public void inorder() {
+        System.out.print("In-order Traversal: ");
+        inorderRec(root);
+        System.out.println();
+    }
+
+    private void inorderRec(Node root) {
+        if (root != null) {
+            inorderRec(root.left); // Traverse left subtree
+            System.out.print(root.data + " "); // Visit node
+            inorderRec(root.right); // Traverse right subtree
+        }
+    }
+
+    // Pre-order traversal (Root, Left, Right)
+    public void preorder() {
+        System.out.print("Pre-order Traversal: ");
+        preorderRec(root);
+        System.out.println();
+    }
+
+    private void preorderRec(Node root) {
+        if (root != null) {
+            System.out.print(root.data + " "); // Visit node
+            preorderRec(root.left); // Traverse left subtree
+            preorderRec(root.right); // Traverse right subtree
+        }
+    }
+
+    // Post-order traversal (Left, Right, Root)
+    public void postorder() {
+        System.out.print("Post-order Traversal: ");
+        postorderRec(root);
+        System.out.println();
+    }
+
+    private void postorderRec(Node root) {
+        if (root != null) {
+            postorderRec(root.left); // Traverse left subtree
+            postorderRec(root.right); // Traverse right subtree
+            System.out.print(root.data + " "); // Visit node
+        }
+    }
+
+    // Main method for menu-driven interface
+    public static void main(String[] args) {
+        AVLTree avl = new AVLTree();
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\nAVL Tree Menu:");
+            System.out.println("1. Insert");
+            System.out.println("2. Search");
+            System.out.println("3. Get Total Nodes");
+            System.out.println("4. Is AVL Empty?");
+            System.out.println("5. Remove All Nodes");
+            System.out.println("6. Display In-order");
+            System.out.println("7. Display Pre-order");
+            System.out.println("8. Display Post-order");
+            System.out.println("9. Delete");
+            System.out.println("10. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter data to insert: ");
+                    int insertData = scanner.nextInt();
+                    avl.insert(insertData);
+                    break;
+                case 2:
+                    System.out.print("Enter data to search for: ");
+                    int searchData = scanner.nextInt();
+                    if (avl.search(searchData)) {
+                        System.out.println(searchData + " is found in the tree.");
+                    } else {
+                        System.out.println(searchData + " is not found in the tree.");
+                    }
+                    break;
+                case 3:
+                    System.out.println("Total nodes: " + avl.getTotalNodes());
+                    break;
+                case 4:
+                    System.out.println("Is AVL Tree empty? " + avl.isEmpty());
+                    break;
+                case 5:
+                    avl.removeAllNodes();
+                    break;
+                case 6:
+                    avl.inorder();
+                    break;
+                case 7:
+                    avl.preorder();
+                    break;
+                case 8:
+                    avl.postorder();
+                    break;
+                case 9:
+                    System.out.print("Enter data to delete: ");
+                    int deleteData = scanner.nextInt();
+                    avl.delete(deleteData);
+                    break;
+                case 10:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 10);
+
+        scanner.close(); // Close the scanner to prevent resource leaks
+    }
+}
